@@ -2,33 +2,21 @@ import os
 import fitz  # PyMuPDF
 import streamlit as st
 from dotenv import load_dotenv
-
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_ollama import ChatOllama
 
 
-# FREE local embeddings
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
-# ----------------------------
-# Load environment variables
-# ----------------------------
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# ----------------------------
-# Streamlit Page Config
-# ----------------------------
 st.set_page_config(page_title="RAG PDF Chatbot", page_icon="📄", layout="wide")
 st.title("RAG PDF Chatbot")
 st.caption("Upload a PDF and ask questions.")
 
-# ----------------------------
-# Helpers
-# ----------------------------
 def extract_text_from_pdf(uploaded_file):
     doc = fitz.open(stream=uploaded_file.read(), filetype="pdf")
     pages = []
@@ -89,18 +77,14 @@ def get_answer(query, vectorstore):
     response = llm.invoke(messages)
     return response.content, docs
 
-# ----------------------------
-# Session State
-# ----------------------------
+
 if "vectorstore" not in st.session_state:
     st.session_state.vectorstore = None
 
 if "chat" not in st.session_state:
     st.session_state.chat = []
 
-# ----------------------------
-# Sidebar: Upload PDF
-# ----------------------------
+
 with st.sidebar:
     st.header("Upload PDF")
     pdf_file = st.file_uploader("Upload a PDF file", type=["pdf"])
@@ -110,9 +94,7 @@ with st.sidebar:
         st.session_state.chat = []
         st.rerun()
 
-# ----------------------------
-# Build Vector Store
-# ----------------------------
+
 if pdf_file and st.session_state.vectorstore is None:
     with st.spinner("Extracting text and building index..."):
         full_text, pages = extract_text_from_pdf(pdf_file)
@@ -124,9 +106,6 @@ if pdf_file and st.session_state.vectorstore is None:
         st.session_state.vectorstore = build_vector_store(pages)
         st.success("PDF indexed successfully! You can now ask questions..")
 
-# ----------------------------
-# Chat UI
-# ----------------------------
 st.subheader("Ask Questions")
 
 query = st.text_input("Enter your question:")
@@ -141,9 +120,7 @@ if st.button("Ask") and query:
             st.session_state.chat.append({"role": "user", "text": query})
             st.session_state.chat.append({"role": "assistant", "text": answer, "sources": docs})
 
-# ----------------------------
-# Display Chat
-# ----------------------------
+
 for msg in st.session_state.chat:
     if msg["role"] == "user":
         st.markdown(f"**You:** {msg['text']}")

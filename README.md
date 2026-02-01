@@ -20,8 +20,9 @@ It uses FAISS for vector search, HuggingFace embeddings for indexing the PDF loc
 - HuggingFace embeddings
 - Ollama
 
-## Application Screeshots
-[home page] (screenshots/image.png)
+## Application Screenshots
+
+![Home Page](screenshots/image.png)
 
 ## Prerequisites
 - Python 3.10 or above
